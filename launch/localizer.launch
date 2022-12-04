@@ -1,5 +1,5 @@
 <launch>
-    <group ns="/localizer_nodes">
+    <group ns="/landmark_slam">
         <rosparam param="landmark_tag_ids">[680, 681, 682, 683, 684, 86]</rosparam>
         <node name="localizer_node" pkg="landmark-localizer" type="localizer_listener.py" output="screen"/>
     </group>

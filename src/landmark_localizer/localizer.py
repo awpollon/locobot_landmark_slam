@@ -85,7 +85,7 @@ class BlockBotLocalizer:
             time_idx = self.current_idx
 
         # Add odometry measurement
-
+        print(f"Odometry measurement: {odom}")
         # Retreive previous odometry measurement
         prev_odom = self.odom_history[-1]
         self.odom_history.append(odom)
@@ -110,6 +110,7 @@ class BlockBotLocalizer:
 
         # Add landmark observations
         if self.use_landmarks:
+            print(f"Camera tilt: {camera_tilt}")
             for l in landmarks:
                 l_id = l.id[0]
 
@@ -150,11 +151,15 @@ class BlockBotLocalizer:
         self.estimated_pose = self.result.atPose2(X(self.current_idx))
         self.current_covariance = marginals.marginalCovariance(X(self.current_idx))
 
+        print("Covariance:")
+        print(self.current_covariance)
+        print("Estimated pose: ")
+        print(self.estimated_pose)
+
         if self.v:
             print("Estimated landmark positions:")
             for l_id in self.seen_landmarks:
                 print(f"{l_id}: {self.result.atPoint2(L(l_id))}")
-
 
     def get_estimated_pose(self):
         pose = self.estimated_pose

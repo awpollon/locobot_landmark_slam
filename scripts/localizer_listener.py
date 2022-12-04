@@ -8,19 +8,19 @@ from sensor_msgs.msg import JointState
 from apriltag_ros.msg import AprilTagDetectionArray
 from tf.transformations import euler_from_quaternion
 
+
 class LocalizerListener:
     def __init__(self) -> None:
         self.robot_name = rospy.get_param('robot_name', 'locobot')
+        self.reset_issued = True
+        self.camera_tilt = 0
         self.landmark_tag_ids = rospy.get_param('landmark_tag_ids', [])
-        self.localizer = BlockBotLocalizer()
-        self.odom = None
-        self.landmark_detections = []
-        self.camera_tilt = None
         rospy.init_node('localizer-listener')
+    
         rospy.Subscriber(
             "/" + self.robot_name + "/mobile_base/commands/reset_odometry",
             Empty,
-            self.reset_localizer
+            self.odom_reset
         )
 
         rospy.Subscriber(
@@ -47,11 +47,15 @@ class LocalizerListener:
             queue_size=1
         )
 
-
-    def reset_localizer(self, msg):
+    def odom_reset(self, _):
         '''Odometry has been reset'''
-        print(msg)
+        self.reset_issued = True
+
+    def reset_localizer(self):
+        print("Resetting Localizer")
         self.localizer = BlockBotLocalizer()
+        self.odom = None
+        self.landmark_detections = []
 
     def update_odom(self, msg):
         # Convert from quaternion (adapted from Interbotix code)
@@ -63,7 +67,6 @@ class LocalizerListener:
             odom.orientation.w
         )
         self.odom = [odom.position.x, odom.position.y, euler_from_quaternion(quat)[2]]
-    
 
     def update_landmark_detections(self, msg: AprilTagDetectionArray):
         self.landmark_detections = [
@@ -71,13 +74,18 @@ class LocalizerListener:
         ]
 
     def update_camera_tilt(self, msg):
-        self.camera_tilt
-
+        self.camera_tilt = msg.position[msg.name.index('tilt')]
 
     def run(self):
         r = rospy.Rate(10)
 
         while not rospy.is_shutdown():
+            if self.reset_issued:
+                # Handle reset, allow sensors to settle
+                rospy.sleep(1)
+                self.reset_localizer()
+                self.reset_issued = False
+
             if self.odom:
                 self.localizer.add_observation(
                     self.odom,
