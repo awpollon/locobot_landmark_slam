@@ -39,18 +39,29 @@ def calc_bearing_range_from_tag(tag, camera_tilt=0):
     # x = real horizontal distance from camera center, left relative to robot is postive
     # y = real vertical distance from camera center, down is positive
 
+    # Camera is 0.03m from true center
+    # camera_x_offset = 0.03
+    camera_x_offset = 0
+
+    shifted_x = tag.x - camera_x_offset
+
     # Project the tag distance to the camera center parallel to the ground based on camera tilt
-    dist_to_camera_center = math.sqrt(tag.z**2 - tag.x**2 - tag.y**2) * np.cos(camera_tilt)
+    # dist_to_camera_center = math.sqrt(tag.z**2 - shifted_x**2 - tag.y**2) * np.cos(camera_tilt)
+    
+    ground_projection = math.sqrt(tag.z**2 - tag.y**2) * np.cos(camera_tilt) + (-tag.y * np.sin(camera_tilt))
+    print(f"Ground projection updated: {ground_projection}")
+
+    dist_to_camera_center = math.sqrt(ground_projection**2 - shifted_x**2)
+    print(f"Dist camera center: {dist_to_camera_center}")
 
     # Adjust for placement of camera from center of LoCoBot
     camera_x_dist = 0.07
-    t_range = math.sqrt(tag.x**2 + (dist_to_camera_center + camera_x_dist)**2)
+    t_range = math.sqrt(shifted_x**2 + (dist_to_camera_center + camera_x_dist)**2)
 
     # Find the bearing angle from LoCobot center to tag
-    t_bearing = math.asin(tag.x / t_range)
+    t_bearing = math.asin(shifted_x / t_range)
 
     # Flip bearing for correct bot rotation direction
-
     return -t_bearing, t_range
 
 
