@@ -40,8 +40,7 @@ def calc_bearing_range_from_tag(tag, camera_tilt=0):
     # y = real vertical distance from camera center, down is positive
 
     # Camera is 0.03m from true center
-    # camera_x_offset = 0.03
-    camera_x_offset = 0
+    camera_x_offset = 0.03
 
     shifted_x = tag.x - camera_x_offset
 
