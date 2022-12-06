@@ -44,9 +44,7 @@ def calc_bearing_range_from_tag(tag, camera_tilt=0):
 
     shifted_x = tag.x - camera_x_offset
 
-    # Project the tag distance to the camera center parallel to the ground based on camera tilt
-    # dist_to_camera_center = math.sqrt(tag.z**2 - shifted_x**2 - tag.y**2) * np.cos(camera_tilt)
-    
+    # Project the tag distance to the camera center parallel to the ground based on camera tilt    
     ground_projection = math.sqrt(tag.z**2 - tag.y**2) * np.cos(camera_tilt) + (-tag.y * np.sin(camera_tilt))
     print(f"Ground projection: {ground_projection}")
 
