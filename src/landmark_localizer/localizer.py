@@ -41,7 +41,7 @@ def calc_bearing_range_from_tag(tag, camera_tilt=0):
 
     # Camera offsets from odometry center
     camera_x_offset = 0.03
-    camera_dist_center = 0.07
+    camera_radius_offset = 0.07
 
     shifted_x = tag.x - camera_x_offset
 
@@ -53,7 +53,7 @@ def calc_bearing_range_from_tag(tag, camera_tilt=0):
     print(f"Dist camera center: {dist_to_camera_center}")
 
     # Adjust for placement of camera from center of LoCoBot
-    t_range = math.sqrt(shifted_x**2 + (dist_to_camera_center + camera_dist_center)**2)
+    t_range = math.sqrt(shifted_x**2 + (dist_to_camera_center + camera_radius_offset)**2)
 
     # Find the bearing angle from LoCobot center to tag
     t_bearing = math.asin(shifted_x / t_range)
